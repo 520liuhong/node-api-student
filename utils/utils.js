@@ -15,21 +15,13 @@ exports.callBackSuc = function (msg, data) {
 
 /**
  * 返回失败信息
+ * @param code
  * @param msg
  * @returns {{msg, code: number}}
  */
-exports.callBackError = function (e1, e2) {
-    let obj = {}
-    if (e2) {
-        obj = {
-            code:  e1,
-            msg: e2 || '操作失败'
-        }
-    } else {
-        obj = {
-            code:  -1,
-            msg: e1
-        }
+exports.callBackError = function (code, msg) {
+    return {
+        code: code || -1,
+        msg: msg || '操作失败'
     }
-    return obj
 }
