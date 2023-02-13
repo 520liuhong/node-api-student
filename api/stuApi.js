@@ -173,10 +173,7 @@ router.post('/deleteUser', (req, res) => {
     let _res = res;
     // 判断参数是否为空
     if (!user.username) {
-        return resJson(_res, {
-            code: -1,
-            msg: '用户名不能为空'
-        })
+        return resJson(_res, callBackError(code, '用户名不能为空'))
     }
     let _data;
     // 整合参数
@@ -184,30 +181,19 @@ router.post('/deleteUser', (req, res) => {
     pool.getConnection((err, conn) => {
         // 查询数据库该用户是否已存在
         conn.query(userSQL.queryByName, user.username, (e, r) => {
-            if (e) _data = {
-                code: -1,
-                msg: e
-            }
+            if (e) _data = callBackError(code, e)
             if (r) {
                 //判断用户列表是否为空
                 if (r.length) {
                     //如不为空，则说明存在此用户
                     conn.query(userSQL.deleteUser, user.username, (err, result) => {
-                        if (err) _data = {
-                            code: -1,
-                            msg: e
-                        }
+                        if (err) _data = callBackError(code, e)
                         if (result) {
-                            _data = {
-                                msg: '删除用户操作成功'
-                            }
+                            _data = callBackSuc('删除用户操作成功')
                         }
                     })
                 } else {
-                    _data = {
-                        code: -1,
-                        msg: '用户不存在，操作失败'
-                    }
+                    _data = callBackError(code, '用户不存在，操作失败')
                 }
             }
             setTimeout(() => {

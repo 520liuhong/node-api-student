@@ -22,6 +22,6 @@ exports.callBackSuc = function (msg, data) {
 exports.callBackError = function (code, msg) {
     return {
         code: code || -1,
-        msg: msg || '操作失败'
+        msg: msg || 'no data'
     }
 }

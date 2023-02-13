@@ -1,5 +1,6 @@
 const {app, pool} = require('./connect')
-const student = require('./api/stuApi')
+// const student = require('./api/stuApi')
+const student = require('./api/NewStuApi')
 app.all('*', (req, res, next) => {
     // 这里处理全局拦截，一定要写在最上面
     // 设置允许跨域的域名，*代表允许任意域名跨域
