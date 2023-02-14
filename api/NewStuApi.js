@@ -51,7 +51,11 @@ router.get('/getAllCollege', (req, res) => {
         conn.query(stuSQL.getAllCollege, (e, result) => {
             if (e) _data = callBackError(code, e)
             if (result && result.length) {
-                _data = callBackSuc('查询成功', result)
+                const data = []
+                result.forEach(item => {
+                    data.push({id: item.college_id, name: item.college_name})
+                })
+                _data = callBackSuc('查询成功', data)
             } else {
                 _data = callBackError(code, 'no data')
             }
@@ -69,6 +73,10 @@ router.get('/getAllClass', (req, res) => {
         conn.query(stuSQL.getAllClass, (e, result) => {
             if (e) _data = callBackError(code, e)
             if (result && result.length) {
+                // const data = []
+                // result.forEach(item => {
+                //     data.push({id: item.college_id, name: item.college_name})
+                // })
                 _data = callBackSuc('查询成功', result)
             } else {
                 _data = callBackError(code, 'no data')
@@ -84,12 +92,15 @@ router.get('/getAllClass', (req, res) => {
 router.post('/getSpecialtyByCollege', (req, res) => {
     let _data;
     let param = req.body
-    console.log('id', param)
     pool.getConnection((err, conn) => {
-        conn.query(stuSQL.getSpecialtyByCollege, [param.college_id], (e, result) => {
+        conn.query(stuSQL.getSpecialtyByCollege, [param.id], (e, result) => {
             if (e) _data = callBackError(code, e)
             if (result && result.length) {
-                _data = callBackSuc('查询成功', result)
+                const data = []
+                result.forEach(item => {
+                    data.push({id: item.specialty_id, name: item.specialty_name})
+                })
+                _data = callBackSuc('查询成功', data)
             } else {
                 _data = callBackError(code, 'no data')
             }
@@ -101,13 +112,18 @@ router.post('/getSpecialtyByCollege', (req, res) => {
 /**
  * 根据专业查班级
  */
-router.get('/getClassBySpecialty', (req, res) => {
+router.post('/getClassBySpecialty', (req, res) => {
     let _data;
+    let param = req.body
     pool.getConnection((err, conn) => {
-        conn.query(stuSQL.getClassBySpecialty, (e, result) => {
+        conn.query(stuSQL.getClassBySpecialty, [param.id], (e, result) => {
             if (e) _data = callBackError(code, e)
             if (result && result.length) {
-                _data = callBackSuc('查询成功', result)
+                const data = []
+                result.forEach(item => {
+                    data.push({id: item.class_id, name: item.class_name})
+                })
+                _data = callBackSuc('查询成功', data)
             } else {
                 _data = callBackError(code, 'no data')
             }
@@ -116,5 +132,29 @@ router.get('/getClassBySpecialty', (req, res) => {
         pool.releaseConnection(conn) // 释放连接池，等待别的连接使用
     })
 })
+/**
+ * 注册用户信息
+ */
+router.post('/addStu', (req, res) => {
+    let _data;
+    let body = req.body
+    let param = [body.collegeId,body.specialtyId,body.classId,'',body.name,body.sex]
+    console.log('接口查看入参情况', param)
+    pool.getConnection((err, conn) => {
+        conn.query(stuSQL.addStu, param, (e, result) => {
+            console.log('接口返回情况', result)
+            if (e) _data = callBackError(code, e)
+            if (result) {
+                _data = callBackSuc('添加成功')
+            } else {
+                _data = callBackError(code, 'no data')
+            }
+            resJson(res, _data)
+        })
+        pool.releaseConnection(conn) // 释放连接池，等待别的连接使用
+    })
+})
+
+
 module.exports = router;
 

@@ -21,11 +21,11 @@ exports.stuSQL = {
     // 根据专业查班级
     getClassBySpecialty: 'select class_id,class_name from na_class where specialty_id = ?',
     // 根据院系查询专业
-    getSpecialtyByCollege: 'select specialty_id, specialty_name from na_college, na_specialty where na_college.college_id = na_specialty.college_id',
+    // getSpecialtyByCollege: 'select specialty_id, specialty_name from na_college, na_specialty where na_college.college_id = na_specialty.college_id',
     // 用户名称模糊查询
     getStuByName: 'select * from na_specialty where specialty_name like ?',
     // 添加用户
-    addStu: 'insert into na_student set ?'
+    addStu: 'insert into na_student (college_id,specialty_id,class_id,stu_id,stu_name,stu_sex) values (?,?,?,?,?,?)'
 }
 
 // module.exports = userSQL
