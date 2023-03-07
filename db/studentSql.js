@@ -9,11 +9,11 @@ exports.userSQL = {
 
 exports.stuSQL = {
     // 查询所有用户
-    getAllStu: 'select college_name,specialty_name,class_name,stu_id,stu_name,stu_sex,stu_age,stu_city,stu_phone from na_student,na_college,na_specialty,na_class where na_student.college_id = na_college.college_id and na_student.specialty_id = na_specialty.specialty_id and na_student.class_id = na_class.class_id',
+    getStuInfo: 'select college_name as college,specialty_name as specialty,class_name as class,stu_id as id,stu_name as name,stu_sex as sex,stu_age as age,stu_city as city,stu_phone as phone from na_student,na_college,na_specialty,na_class where na_student.college_id = na_college.college_id and na_student.specialty_id = na_specialty.specialty_id and na_student.class_id = na_class.class_id',
     // 查询所有院系
-    getAllCollege: 'select * from na_college',
+    getAllCollege: 'select college_id as id, college_name as name from na_college',
     // 查询所有专业
-    getAllSpecialty: 'select * from na_specialty',
+    getAllSpecialty: 'select specialty_id as id, specialty_name as name from na_specialty',
     // 查询所有班级
     getAllClass: 'select na_class.college_id,college_name,na_class.specialty_id,specialty_name,class_id,class_name from na_college,na_specialty,na_class where na_class.college_id = na_college.college_id and na_class.specialty_id = na_specialty.specialty_id',
     // 根据院系查专业
@@ -25,7 +25,9 @@ exports.stuSQL = {
     // 用户名称模糊查询
     getStuByName: 'select * from na_specialty where specialty_name like ?',
     // 添加用户
-    addStu: 'insert into na_student (college_id,specialty_id,class_id,stu_id,stu_name,stu_sex) values (?,?,?,?,?,?)'
+    addStu: 'insert into na_student (college_id,specialty_id,class_id,stu_id,stu_name,stu_sex) values (?,?,?,?,?,?)',
+    // 删除学生
+    delStu: 'delete from na_student where stu_id=?',
 }
 
 // module.exports = userSQL

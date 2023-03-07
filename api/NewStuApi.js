@@ -1,22 +1,27 @@
 const {pool, router, resJson} = require('../connect.js')
-const {callBackSuc, callBackError} = require('../utils/utils.js')
+const {callBackSuc, callBackError, pagination} = require('../utils/utils.js')
 const {stuSQL} = require('../db/studentSql.js')
 const code = -1
 
 /**
  * 查询所有用户
  */
-router.get('/getAllStu', (req, res) => {
+router.post('/getStuInfo', (req, res) => {
     let _data;
+    let limit = pagination(req.body.pageNo, req.body.pageSize)
     pool.getConnection((err, conn) => {
-        conn.query(stuSQL.getAllStu, (e, result) => {
-            if (e) _data = callBackError(code, e)
-            if (result && result.length) {
-                _data = callBackSuc('查询成功', result)
-            } else {
-                _data = callBackError(code, '当前没有用户')
-            }
-            resJson(res, _data)
+        conn.query(stuSQL.getStuInfo + limit, (e, result) => {
+            conn.query('select count(*) from na_student', (e1, result1) => {
+                console.log('打印结果', result1[0])
+                console.log('打印结果2', result1[0].count)
+                if (e) _data = callBackError(code, e)
+                if (result && result.length) {
+                    _data = callBackSuc('查询成功', result, result1)
+                } else {
+                    _data = callBackError(code, '当前没有用户')
+                }
+                resJson(res, _data)
+            })
         })
         pool.releaseConnection(conn) // 释放连接池，等待别的连接使用
     })
@@ -26,7 +31,7 @@ router.get('/getAllStu', (req, res) => {
  */
 router.post('/getStuByName', (req, res) => {
     let _data;
-    let param="%"+req.body.name+"%"
+    let param = "%" + req.body.name + "%"
 
     pool.getConnection((err, conn) => {
         conn.query(stuSQL.getStuByName, [param], (e, result) => {
@@ -51,11 +56,7 @@ router.get('/getAllCollege', (req, res) => {
         conn.query(stuSQL.getAllCollege, (e, result) => {
             if (e) _data = callBackError(code, e)
             if (result && result.length) {
-                const data = []
-                result.forEach(item => {
-                    data.push({id: item.college_id, name: item.college_name})
-                })
-                _data = callBackSuc('查询成功', data)
+                _data = callBackSuc('查询成功', result)
             } else {
                 _data = callBackError(code, 'no data')
             }
@@ -73,10 +74,6 @@ router.get('/getAllClass', (req, res) => {
         conn.query(stuSQL.getAllClass, (e, result) => {
             if (e) _data = callBackError(code, e)
             if (result && result.length) {
-                // const data = []
-                // result.forEach(item => {
-                //     data.push({id: item.college_id, name: item.college_name})
-                // })
                 _data = callBackSuc('查询成功', result)
             } else {
                 _data = callBackError(code, 'no data')
@@ -96,11 +93,7 @@ router.post('/getSpecialtyByCollege', (req, res) => {
         conn.query(stuSQL.getSpecialtyByCollege, [param.id], (e, result) => {
             if (e) _data = callBackError(code, e)
             if (result && result.length) {
-                const data = []
-                result.forEach(item => {
-                    data.push({id: item.specialty_id, name: item.specialty_name})
-                })
-                _data = callBackSuc('查询成功', data)
+                _data = callBackSuc('查询成功', result)
             } else {
                 _data = callBackError(code, 'no data')
             }
@@ -138,7 +131,7 @@ router.post('/getClassBySpecialty', (req, res) => {
 router.post('/addStu', (req, res) => {
     let _data;
     let body = req.body
-    let param = [body.collegeId,body.specialtyId,body.classId,'',body.name,body.sex]
+    let param = [body.collegeId, body.specialtyId, body.classId, '', body.name, body.sex]
     console.log('接口查看入参情况', param)
     pool.getConnection((err, conn) => {
         conn.query(stuSQL.addStu, param, (e, result) => {
@@ -148,6 +141,25 @@ router.post('/addStu', (req, res) => {
                 _data = callBackSuc('添加成功')
             } else {
                 _data = callBackError(code, 'no data')
+            }
+            resJson(res, _data)
+        })
+        pool.releaseConnection(conn) // 释放连接池，等待别的连接使用
+    })
+})
+/**
+ * 注册用户信息
+ */
+router.post('/delStu', (req, res) => {
+    let _data;
+    let param = [req.body.id]
+    pool.getConnection((err, conn) => {
+        conn.query(stuSQL.delStu, param, (e, result) => {
+            if (e) _data = callBackError(code, e)
+            if (result) {
+                _data = callBackSuc('删除成功')
+            } else {
+                _data = callBackError(code, '删除失败')
             }
             resJson(res, _data)
         })
