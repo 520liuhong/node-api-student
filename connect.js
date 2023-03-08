@@ -4,7 +4,6 @@ const router = express.Router()
 const mysql = require('mysql')
 
 const bodyParser = require('body-parser')// 解析参数
-let login = true
 app.use(bodyParser.json())// json请求
 app.use(bodyParser.urlencoded({extended: false}))// 表单请求
 
@@ -24,10 +23,11 @@ function resJson (_res, result) {
     return _res.json(new Res(result))
 }
 
-function Res ({ code = 1, msg = '', data = {} }) {
+function Res ({ code = 1, msg = '', data = [], total = 0 }) {
     this.code = code;
     this.msg = msg;
     this.data = data;
+    if (total) this.total = total;
 }
 
 // 断线重连机制

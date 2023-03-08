@@ -12,8 +12,6 @@ router.post('/getStuInfo', (req, res) => {
     pool.getConnection((err, conn) => {
         conn.query(stuSQL.getStuInfo + limit, (e, result) => {
             conn.query('select count(*) from na_student', (e1, result1) => {
-                console.log('打印结果', result1[0])
-                console.log('打印结果2', result1[0].count)
                 if (e) _data = callBackError(code, e)
                 if (result && result.length) {
                     _data = callBackSuc('查询成功', result, result1)
@@ -35,7 +33,6 @@ router.post('/getStuByName', (req, res) => {
 
     pool.getConnection((err, conn) => {
         conn.query(stuSQL.getStuByName, [param], (e, result) => {
-            console.log('打印结果', result)
             if (e) _data = callBackError(code, e)
             if (result && result.length) {
                 _data = callBackSuc('查询成功', result)
@@ -132,10 +129,8 @@ router.post('/addStu', (req, res) => {
     let _data;
     let body = req.body
     let param = [body.collegeId, body.specialtyId, body.classId, '', body.name, body.sex]
-    console.log('接口查看入参情况', param)
     pool.getConnection((err, conn) => {
         conn.query(stuSQL.addStu, param, (e, result) => {
-            console.log('接口返回情况', result)
             if (e) _data = callBackError(code, e)
             if (result) {
                 _data = callBackSuc('添加成功')

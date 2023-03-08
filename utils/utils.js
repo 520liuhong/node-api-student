@@ -2,6 +2,7 @@
  * 返回成功信息
  * @param msg
  * @param data
+ * @param total
  * @returns {{msg, code: number}}
  */
 exports.callBackSuc = function (msg, data, total) {
@@ -9,9 +10,11 @@ exports.callBackSuc = function (msg, data, total) {
         code: 200,
         msg: msg
     }
-    if (data) obj.data = data
-    console.log('====', total)
-    if (total) obj.total = total
+
+    obj.data = data || []
+    if (total) {
+        obj.total = Object.values(total[0])[0]
+    }
     return obj
 }
 
