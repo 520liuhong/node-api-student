@@ -33,13 +33,15 @@ router.post('/getStuByName', (req, res) => {
 
     pool.getConnection((err, conn) => {
         conn.query(stuSQL.getStuByName, [param], (e, result) => {
-            if (e) _data = callBackError(code, e)
-            if (result && result.length) {
-                _data = callBackSuc('查询成功', result)
-            } else {
-                _data = callBackError(code, '当前没有用户')
-            }
-            resJson(res, _data)
+            conn.query('select count(*) from na_specialty', (e1, result1) => {
+                if (e) _data = callBackError(code, e)
+                if (result && result.length) {
+                    _data = callBackSuc('查询成功', result, result1)
+                } else {
+                    _data = callBackError(code, '当前没有用户')
+                }
+                resJson(res, _data)
+            })
         })
         pool.releaseConnection(conn) // 释放连接池，等待别的连接使用
     })
@@ -109,11 +111,7 @@ router.post('/getClassBySpecialty', (req, res) => {
         conn.query(stuSQL.getClassBySpecialty, [param.id], (e, result) => {
             if (e) _data = callBackError(code, e)
             if (result && result.length) {
-                const data = []
-                result.forEach(item => {
-                    data.push({id: item.class_id, name: item.class_name})
-                })
-                _data = callBackSuc('查询成功', data)
+                _data = callBackSuc('查询成功', result)
             } else {
                 _data = callBackError(code, 'no data')
             }
@@ -128,17 +126,27 @@ router.post('/getClassBySpecialty', (req, res) => {
 router.post('/addStu', (req, res) => {
     let _data;
     let body = req.body
-    let param = [body.collegeId, body.specialtyId, body.classId, '', body.name, body.sex]
     pool.getConnection((err, conn) => {
-        conn.query(stuSQL.addStu, param, (e, result) => {
-            if (e) _data = callBackError(code, e)
-            if (result) {
-                _data = callBackSuc('添加成功')
+        let stu_id = 0
+        conn.query('select max(stu_id) from na_student where class_id = '+'201920202'+' order by stu_id', (e, result) => {
+            stu_id = Object.values(result[0])[0]
+            if (stu_id) {
+                stu_id = parseFloat(stu_id) + 1
             } else {
-                _data = callBackError(code, 'no data')
+                stu_id = body.classId + '01'
             }
-            resJson(res, _data)
+            let param = [body.collegeId, body.specialtyId, body.classId, stu_id, body.name, body.sex]
+            conn.query(stuSQL.addStu, param, (e, result) => {
+                if (e) _data = callBackError(code, e)
+                if (result) {
+                    _data = callBackSuc('添加成功')
+                } else {
+                    _data = callBackError(code, 'no data')
+                }
+                resJson(res, _data)
+            })
         })
+
         pool.releaseConnection(conn) // 释放连接池，等待别的连接使用
     })
 })

@@ -9,7 +9,7 @@ exports.userSQL = {
 
 exports.stuSQL = {
     // 查询所有用户
-    getStuInfo: 'select college_name as college,specialty_name as specialty,class_name as class,stu_id as id,stu_name as name,stu_sex as sex,stu_age as age,stu_city as city,stu_phone as phone from na_student,na_college,na_specialty,na_class where na_student.college_id = na_college.college_id and na_student.specialty_id = na_specialty.specialty_id and na_student.class_id = na_class.class_id',
+    getStuInfo: 'select na_student.college_id,college_name as college,na_student.specialty_id,specialty_name as specialty,na_student.class_id,class_name as class,stu_id as id,stu_name as name,stu_sex as sex,stu_age as age,stu_city as city,stu_phone as phone from na_student,na_college,na_specialty,na_class where na_student.college_id = na_college.college_id and na_student.specialty_id = na_specialty.specialty_id and na_student.class_id = na_class.class_id',
     // 查询所有院系
     getAllCollege: 'select college_id as id, college_name as name from na_college',
     // 查询所有专业
@@ -17,9 +17,9 @@ exports.stuSQL = {
     // 查询所有班级
     getAllClass: 'select na_class.college_id,college_name,na_class.specialty_id,specialty_name,class_id,class_name from na_college,na_specialty,na_class where na_class.college_id = na_college.college_id and na_class.specialty_id = na_specialty.specialty_id',
     // 根据院系查专业
-    getSpecialtyByCollege: 'select specialty_id, specialty_name from na_specialty where college_id = ?',
+    getSpecialtyByCollege: 'select specialty_id as id, specialty_name as name from na_specialty where college_id = ?',
     // 根据专业查班级
-    getClassBySpecialty: 'select class_id,class_name from na_class where specialty_id = ?',
+    getClassBySpecialty: 'select class_id as id,class_name as name from na_class where specialty_id = ?',
     // 根据院系查询专业
     // getSpecialtyByCollege: 'select specialty_id, specialty_name from na_college, na_specialty where na_college.college_id = na_specialty.college_id',
     // 用户名称模糊查询
