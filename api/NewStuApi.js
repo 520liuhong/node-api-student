@@ -135,13 +135,13 @@ router.post('/addStu', (req, res) => {
             } else {
                 stu_id = body.classId + '01'
             }
-            let param = [body.collegeId, body.specialtyId, body.classId, stu_id, body.name, body.sex]
+            let param = [body.collegeId, body.specialtyId, body.classId, stu_id, body.name, body.sex, body.age, body.address, body.phoneNo,(new Date()).getTime()]
             conn.query(stuSQL.addStu, param, (e, result) => {
                 if (e) _data = callBackError(code, e)
                 if (result) {
                     _data = callBackSuc('添加成功')
                 } else {
-                    _data = callBackError(code, 'no data')
+                    _data = callBackError(code, '添加失败，请联系管理员')
                 }
                 resJson(res, _data)
             })

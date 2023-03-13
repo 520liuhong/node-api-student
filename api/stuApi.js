@@ -65,7 +65,6 @@ router.post('/register', (req, res) => {
         password: req.body.password
     }
     let _res = res;
-    console.log('调用', req.body, req.body.username)
     // 判断参数是否为空
     if (!user.username) {
         return resJson(_res, callBackError(code, '用户名不能为空'))
