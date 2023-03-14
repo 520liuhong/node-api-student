@@ -128,17 +128,17 @@ router.post('/addStu', (req, res) => {
     let body = req.body
     pool.getConnection((err, conn) => {
         let stu_id = 0
-        conn.query('select max(stu_id) from na_student where class_id = '+'201920202'+' order by stu_id', (e, result) => {
+        conn.query('select max(stu_id) from na_student where class_id = ' + body.classId + ' order by stu_id desc', (e, result) => {
             stu_id = Object.values(result[0])[0]
             if (stu_id) {
                 stu_id = parseFloat(stu_id) + 1
             } else {
                 stu_id = body.classId + '01'
             }
-            let param = [body.collegeId, body.specialtyId, body.classId, stu_id, body.name, body.sex, body.age, body.address, body.phoneNo,(new Date()).getTime()]
-            conn.query(stuSQL.addStu, param, (e, result) => {
+            let param = [body.collegeId, body.specialtyId, body.classId, stu_id, body.name, body.sex, body.age, body.address, body.phoneNo, (new Date()).getTime()]
+            conn.query(stuSQL.addStu, param, (e, result1) => {
                 if (e) _data = callBackError(code, e)
-                if (result) {
+                if (result1) {
                     _data = callBackSuc('添加成功')
                 } else {
                     _data = callBackError(code, '添加失败，请联系管理员')
@@ -172,33 +172,27 @@ router.post('/delStu', (req, res) => {
 /**
  * 修改用户信息
  */
-// router.post('/updateStu', (req, res) => {
-//     let _data;
-//     let body = req.body
-//     pool.getConnection((err, conn) => {
-//         let stu_id = 0
-//         conn.query('select max(stu_id) from na_student where class_id = '+'201920202'+' order by stu_id', (e, result) => {
-//             stu_id = Object.values(result[0])[0]
-//             if (stu_id) {
-//                 stu_id = parseFloat(stu_id) + 1
-//             } else {
-//                 stu_id = body.classId + '01'
-//             }
-//             let param = [body.collegeId, body.specialtyId, body.classId, stu_id, body.name, body.sex, body.age, body.address, body.phoneNo,(new Date()).getTime()]
-//             conn.query(stuSQL.addStu, param, (e, result) => {
-//                 if (e) _data = callBackError(code, e)
-//                 if (result) {
-//                     _data = callBackSuc('添加成功')
-//                 } else {
-//                     _data = callBackError(code, '添加失败，请联系管理员')
-//                 }
-//                 resJson(res, _data)
-//             })
-//         })
-//
-//         pool.releaseConnection(conn) // 释放连接池，等待别的连接使用
-//     })
-// })
+router.post('/updateStu', (req, res) => {
+    let _data;
+    let body = req.body
+    let updateTime = (new Date()).getTime()
+    pool.getConnection((err, conn) => {
+        let param = [body.collegeId, body.specialtyId, body.classId, body.stuId, body.name, body.sex, body.age, body.address, body.phoneNo, updateTime, body.user, body.id]
+        console.log('编辑用户入参', param)
+        conn.query(stuSQL.updateStu, param, (e, result) => {
+            console.log('编辑用户回调', result)
+            if (e) _data = callBackError(code, e)
+            if (result) {
+                _data = callBackSuc('修改成功')
+            } else {
+                _data = callBackError(code, '修改失败，请联系管理员')
+            }
+            resJson(res, _data)
+        })
+
+        pool.releaseConnection(conn) // 释放连接池，等待别的连接使用
+    })
+})
 
 module.exports = router;
 
