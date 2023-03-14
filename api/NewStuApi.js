@@ -178,9 +178,7 @@ router.post('/updateStu', (req, res) => {
     let updateTime = (new Date()).getTime()
     pool.getConnection((err, conn) => {
         let param = [body.collegeId, body.specialtyId, body.classId, body.stuId, body.name, body.sex, body.age, body.address, body.phoneNo, updateTime, body.user, body.id]
-        console.log('编辑用户入参', param)
         conn.query(stuSQL.updateStu, param, (e, result) => {
-            console.log('编辑用户回调', result)
             if (e) _data = callBackError(code, e)
             if (result) {
                 _data = callBackSuc('修改成功')
