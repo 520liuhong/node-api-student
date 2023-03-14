@@ -151,11 +151,11 @@ router.post('/addStu', (req, res) => {
     })
 })
 /**
- * 注册用户信息
+ * 删除用户信息
  */
 router.post('/delStu', (req, res) => {
     let _data;
-    let param = [req.body.id]
+    let param = [req.body.ids]
     pool.getConnection((err, conn) => {
         conn.query(stuSQL.delStu, param, (e, result) => {
             if (e) _data = callBackError(code, e)
@@ -169,7 +169,36 @@ router.post('/delStu', (req, res) => {
         pool.releaseConnection(conn) // 释放连接池，等待别的连接使用
     })
 })
-
+/**
+ * 修改用户信息
+ */
+// router.post('/updateStu', (req, res) => {
+//     let _data;
+//     let body = req.body
+//     pool.getConnection((err, conn) => {
+//         let stu_id = 0
+//         conn.query('select max(stu_id) from na_student where class_id = '+'201920202'+' order by stu_id', (e, result) => {
+//             stu_id = Object.values(result[0])[0]
+//             if (stu_id) {
+//                 stu_id = parseFloat(stu_id) + 1
+//             } else {
+//                 stu_id = body.classId + '01'
+//             }
+//             let param = [body.collegeId, body.specialtyId, body.classId, stu_id, body.name, body.sex, body.age, body.address, body.phoneNo,(new Date()).getTime()]
+//             conn.query(stuSQL.addStu, param, (e, result) => {
+//                 if (e) _data = callBackError(code, e)
+//                 if (result) {
+//                     _data = callBackSuc('添加成功')
+//                 } else {
+//                     _data = callBackError(code, '添加失败，请联系管理员')
+//                 }
+//                 resJson(res, _data)
+//             })
+//         })
+//
+//         pool.releaseConnection(conn) // 释放连接池，等待别的连接使用
+//     })
+// })
 
 module.exports = router;
 
