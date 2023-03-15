@@ -30,8 +30,9 @@ router.post('/getStuInfo', (req, res) => {
 router.post('/getStuByNameOrId', (req, res) => {
     let _data;
     let param = "%" + req.body.q + "%"
+    let limit = pagination(req.body.pageNo, req.body.pageSize)
     pool.getConnection((err, conn) => {
-        conn.query(stuSQL.getStuByNameOrId, [param], (e, result) => {
+        conn.query(stuSQL.getStuByNameOrId + limit, [param], (e, result) => {
             conn.query(stuSQL.getStuByNameOrIdTotal, [param], (e1, result1) => {
                 if (e) _data = callBackError(code, e)
                 if (result && result.length) {
