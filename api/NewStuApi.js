@@ -4,14 +4,14 @@ const {stuSQL} = require('../db/studentSql.js')
 const code = -1
 
 /**
- * 查询所有用户
+ * 查询所有学生
  */
 router.post('/getStuInfo', (req, res) => {
     let _data;
     let limit = pagination(req.body.pageNo, req.body.pageSize)
     pool.getConnection((err, conn) => {
         conn.query(stuSQL.getStuInfo + limit, (e, result) => {
-            conn.query('select count(*) from na_student', (e1, result1) => {
+            conn.query('select count(Id) from na_student', (e1, result1) => {
                 if (e) _data = callBackError(code, e)
                 if (result && result.length) {
                     _data = callBackSuc('查询成功', result, result1)
@@ -25,20 +25,19 @@ router.post('/getStuInfo', (req, res) => {
     })
 })
 /**
- * 通过名称查询用户
+ * 通过名称或者学号模糊查询学生
  */
-router.post('/getStuByName', (req, res) => {
+router.post('/getStuByNameOrId', (req, res) => {
     let _data;
-    let param = "%" + req.body.name + "%"
-
+    let param = "%" + req.body.q + "%"
     pool.getConnection((err, conn) => {
-        conn.query(stuSQL.getStuByName, [param], (e, result) => {
-            conn.query('select count(*) from na_specialty', (e1, result1) => {
+        conn.query(stuSQL.getStuByNameOrId, [param], (e, result) => {
+            conn.query(stuSQL.getStuByNameOrIdTotal, [param], (e1, result1) => {
                 if (e) _data = callBackError(code, e)
                 if (result && result.length) {
                     _data = callBackSuc('查询成功', result, result1)
                 } else {
-                    _data = callBackError(code, '当前没有用户')
+                    _data = callBackError(code, '未查询到该用户')
                 }
                 resJson(res, _data)
             })
@@ -121,7 +120,7 @@ router.post('/getClassBySpecialty', (req, res) => {
     })
 })
 /**
- * 注册用户信息
+ * 注册学生信息
  */
 router.post('/addStu', (req, res) => {
     let _data;
@@ -151,7 +150,7 @@ router.post('/addStu', (req, res) => {
     })
 })
 /**
- * 删除用户信息
+ * 删除学生信息
  */
 router.post('/delStu', (req, res) => {
     let _data;
@@ -170,7 +169,7 @@ router.post('/delStu', (req, res) => {
     })
 })
 /**
- * 修改用户信息
+ * 修改学生信息
  */
 router.post('/updateStu', (req, res) => {
     let _data;
