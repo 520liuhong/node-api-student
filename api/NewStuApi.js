@@ -1,6 +1,7 @@
 const {pool, router, resJson} = require('../connect.js')
 const {callBackSuc, callBackError, pagination} = require('../utils/utils.js')
 const {stuSQL} = require('../db/studentSql.js')
+const {getTimeForYMD} = require("../utils/date-util");
 const code = -1
 
 /**
@@ -135,7 +136,7 @@ router.post('/addStu', (req, res) => {
             } else {
                 stu_id = body.classId + '01'
             }
-            let param = [body.collegeId, body.specialtyId, body.classId, stu_id, body.name, body.sex, body.birthday, body.age, body.address, body.phoneNo, (new Date()).getTime()]
+            let param = [body.collegeId, body.specialtyId, body.classId, stu_id, body.name, body.sex, body.birthday, body.age, body.address, body.phoneNo, getTimeForYMD()]
             conn.query(stuSQL.addStu, param, (e, result1) => {
                 if (e) _data = callBackError(code, e)
                 if (result1) {
@@ -175,7 +176,7 @@ router.post('/delStu', (req, res) => {
 router.post('/updateStu', (req, res) => {
     let _data;
     let body = req.body
-    let updateTime = (new Date()).getTime()
+    let updateTime = getTimeForYMD()
     pool.getConnection((err, conn) => {
         let param = [body.collegeId, body.specialtyId, body.classId, body.stuId, body.name, body.sex, body.birthday, body.age, body.address, body.phoneNo, updateTime, body.user, body.id]
         conn.query(stuSQL.updateStu, param, (e, result) => {
