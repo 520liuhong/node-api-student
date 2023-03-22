@@ -136,7 +136,7 @@ router.post('/addStu', (req, res) => {
             } else {
                 stu_id = body.classId + '01'
             }
-            let param = [body.collegeId, body.specialtyId, body.classId, stu_id, body.name, body.sex, body.birthday, body.age, body.address, body.phoneNo, getTimeForYMD()]
+            let param = [body.gradeId, body.collegeId, body.specialtyId, body.classId, stu_id, body.name, body.sex, body.birthday, body.age, body.address, body.phoneNo, getTimeForYMD()]
             conn.query(stuSQL.addStu, param, (e, result1) => {
                 if (e) _data = callBackError(code, e)
                 if (result1) {
@@ -178,11 +178,30 @@ router.post('/updateStu', (req, res) => {
     let body = req.body
     let updateTime = getTimeForYMD()
     pool.getConnection((err, conn) => {
-        let param = [body.collegeId, body.specialtyId, body.classId, body.stuId, body.name, body.sex, body.birthday, body.age, body.address, body.phoneNo, updateTime, body.user, body.id]
+        let param = [body.gradeId,body.collegeId, body.specialtyId, body.classId, body.stuId, body.name, body.sex, body.birthday, body.age, body.address, body.phoneNo, updateTime, body.user, body.id]
         conn.query(stuSQL.updateStu, param, (e, result) => {
             if (e) _data = callBackError(code, e)
             if (result) {
                 _data = callBackSuc('修改成功')
+            } else {
+                _data = callBackError(code, '修改失败，请联系管理员')
+            }
+            resJson(res, _data)
+        })
+
+        pool.releaseConnection(conn) // 释放连接池，等待别的连接使用
+    })
+})
+/**
+ * 修改学生信息
+ */
+router.post('/getGrade', (req, res) => {
+    let _data;
+    pool.getConnection((err, conn) => {
+        conn.query(stuSQL.getGrade, (e, result) => {
+            if (e) _data = callBackError(code, e)
+            if (result) {
+                _data = callBackSuc('查询成功', result)
             } else {
                 _data = callBackError(code, '修改失败，请联系管理员')
             }
