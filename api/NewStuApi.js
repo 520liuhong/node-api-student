@@ -135,7 +135,7 @@ router.post('/addStu', (req, res) => {
             } else {
                 stu_id = body.classId + '01'
             }
-            let param = [body.collegeId, body.specialtyId, body.classId, stu_id, body.name, body.sex, body.age, body.address, body.phoneNo, (new Date()).getTime()]
+            let param = [body.collegeId, body.specialtyId, body.classId, stu_id, body.name, body.sex, body.birthday, body.age, body.address, body.phoneNo, (new Date()).getTime()]
             conn.query(stuSQL.addStu, param, (e, result1) => {
                 if (e) _data = callBackError(code, e)
                 if (result1) {
@@ -177,7 +177,7 @@ router.post('/updateStu', (req, res) => {
     let body = req.body
     let updateTime = (new Date()).getTime()
     pool.getConnection((err, conn) => {
-        let param = [body.collegeId, body.specialtyId, body.classId, body.stuId, body.name, body.sex, body.age, body.address, body.phoneNo, updateTime, body.user, body.id]
+        let param = [body.collegeId, body.specialtyId, body.classId, body.stuId, body.name, body.sex, body.birthday, body.age, body.address, body.phoneNo, updateTime, body.user, body.id]
         conn.query(stuSQL.updateStu, param, (e, result) => {
             if (e) _data = callBackError(code, e)
             if (result) {

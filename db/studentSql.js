@@ -9,7 +9,7 @@ exports.userSQL = {
 
 exports.stuSQL = {
     // 查询所有用户
-    getStuInfo: 'select na_student.Id as id, na_student.college_id as collegeId,college_name as college,na_student.specialty_id as specialtyId,specialty_name as specialty,na_student.class_id as classId,class_name as class,stu_id as stuId,stu_name as name,stu_sex as sex,stu_age as age,stu_address as address,stu_phone as phoneNo from na_student,na_college,na_specialty,na_class where na_student.college_id = na_college.college_id and na_student.specialty_id = na_specialty.specialty_id and na_student.class_id = na_class.class_id order by na_student.Id desc',
+    getStuInfo: 'select na_student.Id as id, na_student.college_id as collegeId,college_name as college,na_student.specialty_id as specialtyId,specialty_name as specialty,na_student.class_id as classId,class_name as class,stu_id as stuId,stu_name as name,stu_sex as sex,stu_birthday as birthday,stu_age as age,stu_address as address,stu_phone as phoneNo from na_student,na_college,na_specialty,na_class where na_student.college_id = na_college.college_id and na_student.specialty_id = na_specialty.specialty_id and na_student.class_id = na_class.class_id order by na_student.Id desc',
     // 查询所有院系
     getAllCollege: 'select college_id as id, college_name as name from na_college',
     // 查询所有专业
@@ -23,13 +23,13 @@ exports.stuSQL = {
     // 根据院系查询专业
     // getSpecialtyByCollege: 'select specialty_id, specialty_name from na_college, na_specialty where na_college.college_id = na_specialty.college_id',
     // 用户名称模糊查询
-    getStuByNameOrId: 'select na_student.Id as id, na_student.college_id as collegeId,college_name as college,na_student.specialty_id as specialtyId,specialty_name as specialty,na_student.class_id as classId,class_name as class,stu_id as stuId,stu_name as name,stu_sex as sex,stu_age as age,stu_address as address,stu_phone as phoneNo from na_student,na_college,na_specialty,na_class where na_student.college_id = na_college.college_id and na_student.specialty_id = na_specialty.specialty_id and na_student.class_id = na_class.class_id and concat(stu_name,stu_id) like ? order by na_student.Id desc',
+    getStuByNameOrId: 'select na_student.Id as id, na_student.college_id as collegeId,college_name as college,na_student.specialty_id as specialtyId,specialty_name as specialty,na_student.class_id as classId,class_name as class,stu_id as stuId,stu_name as name,stu_sex as sex,stu_birthday as birthday,stu_age as age,stu_address as address,stu_phone as phoneNo from na_student,na_college,na_specialty,na_class where na_student.college_id = na_college.college_id and na_student.specialty_id = na_specialty.specialty_id and na_student.class_id = na_class.class_id and concat(stu_name,stu_id) like ? order by na_student.Id desc',
     getStuByNameOrIdTotal: 'select count(Id) from na_student where concat(stu_name,stu_id) like ?',
     // 添加用户
-    addStu: 'insert into na_student (college_id,specialty_id,class_id,stu_id,stu_name,stu_sex,stu_age,stu_address,stu_phone,create_time) values (?,?,?,?,?,?,?,?,?,?)',
+    addStu: 'insert into na_student (college_id,specialty_id,class_id,stu_id,stu_name,stu_sex,stu_birthday,stu_birthday,stu_age,stu_address,stu_phone,create_time) values (?,?,?,?,?,?,?,?,?,?,?)',
     // 删除学生
     delStu: 'delete from na_student where Id in (?)',
-    updateStu: 'update na_student set college_id=?,specialty_id=?,class_id=?,stu_id=?,stu_name=?,stu_sex=?,stu_age=?,stu_address=?,stu_phone=?,update_time=?,update_user=? where Id=?',
+    updateStu: 'update na_student set college_id=?,specialty_id=?,class_id=?,stu_id=?,stu_name=?,stu_sex=?,stu_birthday=?,stu_age=?,stu_address=?,stu_phone=?,update_time=?,update_user=? where Id=?',
 }
 
 // module.exports = userSQL
