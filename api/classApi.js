@@ -9,6 +9,7 @@ const code = -1
 router.post('/getClass', (req, res) => {
     let _data;
     let limit = pagination(req.body.pageNo, req.body.pageSize)
+    console.log(classSQL.getClass)
     pool.getConnection((err, conn) => {
         conn.query(classSQL.getClass + limit, (e, result) => {
             conn.query(classSQL.getClassTotal, (e1, result1) => {
