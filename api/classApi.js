@@ -40,6 +40,27 @@ router.post('/getClass', (req, res) => {
     })
 })
 /**
+ * 获取教师列表
+ */
+router.post('/getTeacher', (req, res) => {
+    let _data;
+    let limit = pagination(req.body.pageNo, req.body.pageSize)
+    pool.getConnection((err, conn) => {
+        conn.query(classSQL.getTeacher + limit, (e, result) => {
+            conn.query(classSQL.getTeacherTotal, (e1, result1) => {
+                if (e) _data = callBackError(code, e)
+                if (result && result.length) {
+                    _data = callBackSuc('查询成功', result, result1)
+                } else {
+                    _data = callBackError(code, '当前没有数据')
+                }
+                resJson(res, _data)
+            })
+        })
+        pool.releaseConnection(conn) // 释放连接池，等待别的连接使用
+    })
+})
+/**
  * 删除班级
  */
 router.post('/delClass', (req, res) => {
