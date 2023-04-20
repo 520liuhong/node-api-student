@@ -1,7 +1,6 @@
 const {router} = require('../connect.js')
-const {pagination} = require('../utils/utils.js')
+const {pagination, basePost} = require('../utils/utils.js')
 const {adminSQL} = require('../db/adminSql')
-const {basePost} = require("../utils/utils");
 
 /**
  * 查询所有管理员
