@@ -30,7 +30,7 @@ exports.basePost = (params) => {
             } else {
                 if (e) _data = callBackError(code, e)
                 if (result && result.length) {
-                    _data = callBackSuc('OK')
+                    _data = callBackSuc('OK', result)
                 } else {
                     _data = callBackError(code, 'Fail')
                 }
