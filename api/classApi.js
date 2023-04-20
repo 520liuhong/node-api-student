@@ -1,6 +1,7 @@
 const {router} = require('../connect.js')
 const {basePost, pagination} = require('../utils/utils.js')
 const {classSQL} = require('../db/classSql')
+const {getTimeForYMD} = require("../utils/date-util");
 
 /**
  * 分页查询所有班级
@@ -34,6 +35,17 @@ router.post('/delClass', (req, res) => {
         res: res,
         sql: classSQL.delClass,
         param: [req.body.ids]
+    }
+    basePost(params)
+})
+/** 修改班级信息 */
+router.post('/updateClass', (req, res) => {
+    let body = req.body
+    let updateTime = getTimeForYMD()
+    let params = {
+        res: res,
+        sql: classSQL.updateClass,
+        param: [body.gradeId, body.collegeId, body.specialtyId, body.classId, body.class, body.teacherId, updateTime, body.user, body.id]
     }
     basePost(params)
 })

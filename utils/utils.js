@@ -29,7 +29,7 @@ exports.basePost = (params) => {
                 })
             } else {
                 if (e) _data = callBackError(code, e)
-                if (result && result.length) {
+                if (result) {
                     _data = callBackSuc('OK', result)
                 } else {
                     _data = callBackError(code, 'Fail')
