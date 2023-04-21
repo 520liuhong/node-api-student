@@ -28,6 +28,20 @@ router.post('/getTeacher', (req, res) => {
     basePost(params)
 })
 /**
+ * 根据学院获取教师列表
+ */
+router.post('/getTeacherByCollege', (req, res) => {
+    let limit = pagination(req.body.pageNo, req.body.pageSize)
+    let params = {
+        res: res,
+        sql: classSQL.getTeacherByCollege + limit,
+        param: req.body.collegeId,
+        sql2: classSQL.getTeacherTotalByCollege,
+        param2: req.body.collegeId
+    }
+    basePost(params)
+})
+/**
  * 删除班级
  */
 router.post('/delClass', (req, res) => {

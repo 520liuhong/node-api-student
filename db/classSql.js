@@ -14,8 +14,12 @@ exports.classSQL = {
     delClass: 'delete from na_class where Id in (?)',
     // 获取教师列表
     getTeacher: 'select teacher_id as id,teacher_name as name from na_teacher order by teacher_id',
+    // 根据学院获取教师列表
+    getTeacherByCollege: 'select teacher_id as id,teacher_name as name from na_teacher where college_id=? order by teacher_id',
     // 获取教师总数量
     getTeacherTotal: 'select count(Id) from na_teacher',
+    // 获取指定条件的教师数量
+    getTeacherTotalByCollege: 'select count(Id) from na_teacher where college_id=?',
     // 创建班级
     addClass: 'insert into na_class (grade_id,college_id,specialty_id,class_id,class_name,head_teacher,create_time) values (?,?,?,?,?,?,?)',
     // 更新班级信息
