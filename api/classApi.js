@@ -16,29 +16,35 @@ router.post('/getClass', (req, res) => {
     basePost(params)
 })
 /**
- * 获取教师列表
+ * 获取教师列表，目前支持查询所有教师，根据学院，或院系查找教师等三种情况
  */
 router.post('/getTeacher', (req, res) => {
     let limit = pagination(req.body.pageNo, req.body.pageSize)
+
     let params = {
         res: res,
         sql: classSQL.getTeacher + limit,
-        sql2: classSQL.getTeacherTotal,
+        sql2: classSQL.getTeacherTotal
     }
-    basePost(params)
-})
-/**
- * 根据学院获取教师列表
- */
-router.post('/getTeacherByCollege', (req, res) => {
-    let limit = pagination(req.body.pageNo, req.body.pageSize)
-    let params = {
-        res: res,
-        sql: classSQL.getTeacherByCollege + limit,
-        param: req.body.collegeId,
-        sql2: classSQL.getTeacherTotalByCollege,
-        param2: req.body.collegeId
+
+    if (req.body.collegeId) {
+        params = {
+            res: res,
+            sql: classSQL.getTeacherByCollege + limit,
+            param: req.body.collegeId,
+            sql2: classSQL.getTeacherTotal+' college_id='+req.body.collegeId,
+            param2: req.body.collegeId
+        }
+    } else if (req.body.specialtyId) {
+        params = {
+            res: res,
+            sql: classSQL.getTeacherBySpecialty + limit,
+            param: req.body.specialtyId,
+            sql2: classSQL.getTeacherTotal+' specialty_id_id='+req.body.specialtyId,
+            param2: req.body.specialtyId
+        }
     }
+
     basePost(params)
 })
 /**

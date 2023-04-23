@@ -16,6 +16,8 @@ exports.classSQL = {
     getTeacher: 'select teacher_id as id,teacher_name as name from na_teacher order by teacher_id',
     // 根据学院获取教师列表
     getTeacherByCollege: 'select teacher_id as id,teacher_name as name from na_teacher where college_id=? order by teacher_id',
+    // 根据院系获取教师列表
+    getTeacherBySpecialty: 'select teacher_id as id,teacher_name as name from na_teacher where specialty_id=? order by teacher_id',
     // 获取教师总数量
     getTeacherTotal: 'select count(Id) from na_teacher',
     // 获取指定条件的教师数量

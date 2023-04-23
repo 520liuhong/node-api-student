@@ -20,7 +20,7 @@ exports.basePost = (params) => {
             if (sql2) {
                 conn.query(sql2, param2, (e1, result1) => {
                     if (e) _data = callBackError(code, e)
-                    if (result && result.length) {
+                    if (result) {
                         _data = callBackSuc('OK', result, result1)
                     } else {
                         _data = callBackError(code, 'Fail')

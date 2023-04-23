@@ -142,7 +142,6 @@ router.post('/updatePassword', (req, res) => {
                     conn.query(userSQL.updateUser, [{
                         password: user.newPassword
                     }, user.username], (err, result) => {
-                        console.log(err)
                         if (result) {
                             _data = callBackSuc('修改密码成功')
                         } else {
