@@ -10,7 +10,7 @@ const {getTimeForYMD} = require("../utils/date-util");
  */
 router.post('/login', (req, res) => {
     let _data;
-    const name = req.body.user
+    const name = req.body.name
     const pwd = req.body.password
 
     if (name && pwd && name !== '' && pwd !== '') {
