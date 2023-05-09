@@ -61,7 +61,12 @@ router.post('/getSpecialtyByCollege', (req, res) => {
         sql: stuSQL.getSpecialtyByCollege,
         param: [req.body.id]
     }
-    basePost(params)
+    if (req.body.id) {
+        basePost(params)
+    } else {
+        const _data = callBackError(code, 'Fail')
+        resJson(res, _data)
+    }
 })
 /**
  * 根据专业查班级
@@ -72,7 +77,12 @@ router.post('/getClassBySpecialty', (req, res) => {
         sql: stuSQL.getClassBySpecialty,
         param: [req.body.id]
     }
-    basePost(params)
+    if (req.body.id) {
+        basePost(params)
+    } else {
+        const _data = callBackError(code, 'Fail')
+        resJson(res, _data)
+    }
 })
 /**
  * 注册学生信息
@@ -80,40 +90,63 @@ router.post('/getClassBySpecialty', (req, res) => {
 router.post('/addStu', (req, res) => {
     let _data;
     let body = req.body
-    pool.getConnection((err, conn) => {
-        let stu_id = 0
-        conn.query('select max(stu_id) from na_student where class_id = ' + body.classId + ' order by stu_id desc', (e, result) => {
-            stu_id = Object.values(result[0])[0]
-            if (stu_id) {
-                stu_id = parseFloat(stu_id) + 1
-            } else {
-                stu_id = body.classId + '01'
-            }
-            let param = [body.gradeId, body.collegeId, body.specialtyId, body.classId, stu_id, body.name, body.sex, body.birthday, body.age, body.address, body.phoneNo, getTimeForYMD()]
-            conn.query(stuSQL.addStu, param, (e, result1) => {
-                if (e) _data = callBackError(code, e)
-                if (result1) {
-                    _data = callBackSuc('添加成功')
-                } else {
-                    _data = callBackError(code, '添加失败，请联系管理员')
-                }
-                resJson(res, _data)
-            })
-        })
+    if (body.classId && body.gradeId && body.collegeId && body.specialtyId && body.name && body.sex && body.birthday && body.age && body.address) {
+        pool.getConnection((err, conn) => {
+            let stu_id = 0
+            conn.query('select max(stu_id) from na_student where class_id = ' + body.classId + ' order by stu_id desc', (e, result) => {
+                stu_id = Object.values(result[0])[0]
+                stu_id = stu_id ? parseFloat(stu_id) + 1 : body.classId + '01'
 
-        pool.releaseConnection(conn) // 释放连接池，等待别的连接使用
-    })
+                let param = [body.gradeId, body.collegeId, body.specialtyId, body.classId, stu_id, body.name, body.sex, body.birthday, body.age, body.address, body.phoneNo, getTimeForYMD()]
+                conn.query(stuSQL.addStu, param, (e, result1) => {
+                    if (e) _data = callBackError(code, e)
+                    if (result1) {
+                        _data = callBackSuc('添加成功')
+                    } else {
+                        _data = callBackError(code, '添加失败，请联系管理员')
+                    }
+                    resJson(res, _data)
+                })
+            })
+
+            pool.releaseConnection(conn) // 释放连接池，等待别的连接使用
+        })
+    } else {
+        _data = callBackError(code, '信息不全，添加失败')
+        resJson(res, _data)
+    }
 })
 /**
  * 删除学生信息
  */
 router.post('/delStu', (req, res) => {
+    const ids = req.body.ids
     let params = {
         res: res,
         sql: stuSQL.delStu,
-        param: [req.body.ids]
+        param: [ids]
     }
-    basePost(params)
+
+    if (ids && Array.isArray(ids)) {
+        let flag = false
+        for (let i = 0;i < ids.length;i++) {
+            if (typeof ids[i] === "number") {
+                flag = true
+            } else {
+                flag = false
+                break
+            }
+        }
+        if (flag) {
+            basePost(params)
+        } else {
+            const _data = callBackError(code, '删除失败')
+            resJson(res, _data)
+        }
+    } else {
+        const _data = callBackError(code, '删除失败')
+        resJson(res, _data)
+    }
 })
 /**
  * 修改学生信息

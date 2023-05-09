@@ -26,7 +26,7 @@ function resJson (_res, result) {
 function Res ({ code = 1, msg = '', data = [], total = 0 }) {
     this.code = code;
     this.msg = msg;
-    this.data = data;
+    if (code === 200) this.data = data;
     if (total) this.total = total;
 }
 
