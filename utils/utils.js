@@ -57,7 +57,7 @@ const callBackSuc = function (msg, data, total) {
 
     obj.data = data || []
     if (total) {
-        obj.total = Object.values(total[0])[0]
+        obj.total = total[0].total
     }
     return obj
 }
