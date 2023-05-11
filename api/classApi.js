@@ -3,7 +3,7 @@ const {basePost, pagination} = require('../utils/utils.js')
 const {classSQL} = require('../db/classSql')
 const {getTimeForYMD} = require("../utils/date-util");
 const {callBackError} = require("../utils/utils");
-const {resJson} = require("../connect");
+const {resJson, pool} = require("../connect");
 
 /**
  * 分页查询所有班级
@@ -83,19 +83,26 @@ router.post('/delClass', (req, res) => {
 /** 修改班级信息 */
 router.post('/updateClass', (req, res) => {
     let body = req.body
-    let updateTime = getTimeForYMD()
     if (body.user && body.id) {
-        // 校验，年级只能降不能升，根据id查询到年级id进行校验
-        // 添加校验，根据学院id匹配院系id，再匹配专业id和班级id，四者是否都能找到，如果匹配不上则不进行修改
-        // 以上校验从业务方面出发，目前主要学习技术方面，故不深究
-        let params = {
-            res: res,
-            sql: classSQL.updateClass,
-            param: [body.gradeId, body.collegeId, body.specialtyId, body.classId, body.class, body.teacherId, updateTime, body.user, body.id]
-        }
-        basePost(params)
+        // 班级信息只能修改班主任，查询选择的班主任是否在本专业，若在则更改
+        pool.getConnection((err, conn) => {
+            conn.query(classSQL.getTeacherIdBySpecialty, [body.specialtyId,body.teacherId], (e, result) => {
+                if (result && result.length > 0) {
+                    let updateTime = getTimeForYMD()
+                    let params = {
+                        res: res,
+                        sql: classSQL.updateClass,
+                        param: [body.teacherId, updateTime, body.user, body.id]
+                    }
+                    basePost(params)
+                } else {
+                    const _data = callBackError('-1', '操作失败，选择教师不在本专业')
+                    resJson(res, _data)
+                }
+            })
+        })
     } else {
-        const _data = callBackError(code, 'Fail')
+        const _data = callBackError('-1', '操作失败，用户信息不完整')
         resJson(res, _data)
     }
 })
