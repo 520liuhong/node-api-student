@@ -23,7 +23,8 @@ exports.classSQL = {
     // 获取指定条件的教师数量
     getTeacherTotalByCollege: 'select count(Id) as total from na_teacher where college_id=?',
     // 创建班级
-    addClass: 'insert into na_class (grade_id,college_id,specialty_id,class_id,class_name,head_teacher,create_time) values (?,?,?,?,?,?,?)',
+    addClass: 'insert into na_class (grade_id,college_id,specialty_id,class_id,class_name,head_teacher,create_time,update_user) values (?,?,?,?,?,?,?,?)',
+    // 查找教师
     getTeacherIdBySpecialty: 'select teacher_id as id from na_teacher where specialty_id = ? and teacher_id = ?',
     // 更新班级信息
     updateClass: 'update na_class set head_teacher=?,update_time=?,update_user=? where Id=?',

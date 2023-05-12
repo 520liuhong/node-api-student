@@ -2,7 +2,7 @@ const {router} = require('../connect.js')
 const {basePost, pagination} = require('../utils/utils.js')
 const {classSQL} = require('../db/classSql')
 const {getTimeForYMD} = require("../utils/date-util");
-const {callBackError} = require("../utils/utils");
+const {callBackError, callBackSuc} = require("../utils/utils");
 const {resJson, pool} = require("../connect");
 
 /**
@@ -48,6 +48,52 @@ router.post('/getTeacher', (req, res) => {
     }
 
     basePost(params)
+})
+/**
+ * 新增班级
+ */
+router.post('/addClass', (req, res) => {
+    let _data;
+    let body = req.body
+    if (body.gradeId && body.collegeId && body.specialtyId && body.teacherId && body.class && body.user) {
+        pool.getConnection((err, conn) => {
+            let class_id = 0
+            conn.query('select max(class_id) as id from na_class where grade_id = '+body.gradeId+' and specialty_id = '+body.specialtyId+' order by class_id desc', (e, result) => {
+                // 创建班级id
+                if (result && result.length > 0) {
+                    class_id = parseFloat(result[0].id) +1
+                } else {
+                    conn.query('select grade_name as year from na_grade where grade_id = '+body.gradeId, (e1, result1) => {
+                        if (result && result.length > 0) {
+                            const year = result[0].year
+                            class_id = year + body.specialtyId + '01'
+                            class_id = parseFloat(class_id)
+                        } else {
+                            // 否则使用当前年份当作年级年份
+                            class_id = 2023 + body.specialtyId + '01'
+                            class_id = parseFloat(class_id)
+                        }
+                    })
+                }
+
+                let param = [body.gradeId, body.collegeId, body.specialtyId, class_id,body.class,body.teacherId, getTimeForYMD(), body.user]
+                conn.query(classSQL.addClass, param, (e, result1) => {
+                    if (e) _data = callBackError(code, e)
+                    if (result1) {
+                        _data = callBackSuc('添加成功')
+                    } else {
+                        _data = callBackError(code, '添加失败，请联系管理员')
+                    }
+                    resJson(res, _data)
+                })
+            })
+
+            pool.releaseConnection(conn) // 释放连接池，等待别的连接使用
+        })
+    } else {
+        _data = callBackError('-1', '信息不全，添加失败')
+        resJson(res, _data)
+    }
 })
 /**
  * 删除班级
