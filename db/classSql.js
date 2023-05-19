@@ -28,4 +28,6 @@ exports.classSQL = {
     getTeacherIdBySpecialty: 'select teacher_id as id from na_teacher where specialty_id = ? and teacher_id = ?',
     // 更新班级信息
     updateClass: 'update na_class set head_teacher=?,update_time=?,update_user=? where Id=?',
+    searchClass: 'select na_class.Id as id,na_class.grade_id as gradeId,na_class.class_id as classId,na_class.class_name as class,na_grade.grade_name as grade,na_class.college_id as collegeId,na_college.college_name as college,na_specialty.specialty_id as specialtyId,na_specialty.specialty_name as specialty,na_teacher.teacher_id as teacherId,na_teacher.teacher_name as teacher from na_class, na_college, na_specialty,na_grade, na_teacher where na_class.college_id=na_college.college_id and na_class.grade_id=na_grade.grade_id and na_class.specialty_id = na_specialty.specialty_id and na_class.head_teacher = na_teacher.teacher_id and concat(class_id,class_name) like ? order by na_class.Id desc',
+    searchClassTotal: 'select count(Id) as total from na_class where concat(class_id,class_name) like ?',
 }

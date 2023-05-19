@@ -15,6 +15,16 @@ router.post('/getClass', (req, res) => {
         sql: classSQL.getClass + limit,
         sql2: classSQL.getClassTotal,
     }
+    if (req.body.q) {
+        let param = "%" + req.body.q + "%"
+        params = {
+            res: res,
+            sql: classSQL.searchClass + limit,
+            param: [param],
+            sql2: classSQL.searchClassTotal,
+            param2: [param]
+        }
+    }
     basePost(params)
 })
 /**
