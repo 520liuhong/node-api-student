@@ -138,3 +138,25 @@ exports.aesDecrypt = function (key, iv, crypted) {
     // 返回明文
     return decrypted;
 }
+/**
+ * @description: 管理员权限校验
+ * @author: newhome
+ * @date: 2023-05-24 16:44:14
+ */
+exports.checkPermission = function (params, callback) {
+    pool.getConnection((err, conn) => {
+        const sql = "select * from na_admin where name='" + params.name + "' and role_id='" + params.role + "'"
+        conn.query(sql, (e, result) => {
+            if (result && result.length > 0) {
+                if (params.role === 1) {
+                    callback({code: 200, msg: '超级管理员'})
+                } else if (params.role === 2) {
+                    callback({code: 201, msg: '管理员'})
+                }
+            } else {
+                callback({code: -1, msg: '不存在该管理员'})
+            }
+        })
+        pool.releaseConnection(conn) // 释放连接池，等待别的连接使用
+    })
+}
