@@ -18,21 +18,24 @@ router.post('/login', (req, res) => {
             conn.query("select * from na_admin where name = '" + name + "'", (e1, result1) => {
                 const myPwd = result1[0].password
                 if (myPwd) {
-                    conn.query('select * from na_crypto', (e2, result2) => {
-                        const newPwd = aesEncrypt(result2[0].key, result2[0].iv, pwd) // 加密
-                        // const decryptPwd = aesDecrypt(key, iv, newPass) // 解密
-
-                        if (myPwd === newPwd) {
-                            const loginTime = getTimeForYMD()
-                            conn.query("update na_admin set last_login = '" + loginTime + "'", (e3, result3) => {
-                                if (!result3) {
-                                    console.log('登录时修改时间失败', e3.sqlMessage)
-                                }
-                            })
-                            _data = {code: 200, msg: '登录成功'}
-                            resJson(res, _data)
+                    aesEncrypt(pwd, function (response) {
+                        if (response.code === 200) {
+                            const newPwd = response.data
+                            if (myPwd === newPwd) {
+                                const loginTime = getTimeForYMD()
+                                conn.query("update na_admin set last_login = '" + loginTime + "'", (e3, result3) => {
+                                    if (!result3) {
+                                        console.log('登录时修改时间失败', e3.sqlMessage)
+                                    }
+                                })
+                                _data = {code: 200, msg: '登录成功'}
+                                resJson(res, _data)
+                            } else {
+                                _data = callBackError('-1', '登录失败，请检查用户名或密码')
+                                resJson(res, _data)
+                            }
                         } else {
-                            _data = callBackError('-1', '登录失败，请检查用户名或密码')
+                            _data = callBackError(-2, '添加失败，请联系管理员')
                             resJson(res, _data)
                         }
                     })

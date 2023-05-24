@@ -89,20 +89,34 @@ exports.pagination = function (no, size) {
 }
 
 /**
- * 定义加密方法
- * @param key
- * @param iv
- * @param data
- * @returns {string}
+ * @name: 定义加密方法
+ * @description:
+ * @author: newhome
+ * @date: 2023-05-24 17:58:21
  */
-exports.aesEncrypt = function (key, iv, data) {
-    // 三个参数：加密的key、加密的iv、需要加密的数据
-    const cipher = crypto.createCipheriv("aes-128-cbc", key, iv);
-    let crypted = cipher.update(data, "binary", "hex");
-    // 加密结束：结尾加上 cipher.final('hex') 表示结束
-    crypted += cipher.final("hex");
-    // 返回密文
-    return crypted;
+exports.aesEncrypt = function (data, callBack) {
+    if (data) {
+        pool.getConnection((err, conn) => {
+            conn.query('select * from na_crypto', (e, result) => {
+                if (result && result.length > 0) {
+                    // 三个参数：加密的key、加密的iv、需要加密的数据
+                    const key = result[0].key
+                    const iv = result[0].iv
+                    const cipher = crypto.createCipheriv("aes-128-cbc", key, iv);
+                    let crypted = cipher.update(data, "binary", "hex");
+                    // 加密结束：结尾加上 cipher.final('hex') 表示结束
+                    crypted += cipher.final("hex");
+
+                    callBack({code: 200, data: crypted})
+                } else {
+                    callBack({code: -1, msg: '加密文件为空，请检查数据库'})
+                }
+            })
+            pool.releaseConnection(conn) // 释放连接池，等待别的连接使用
+        })
+    } else {
+        callBack({code: -1, msg: '密码不可为空'})
+    }
 }
 /**
  * 定义解密方法
