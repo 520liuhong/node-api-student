@@ -2,7 +2,7 @@ const {router} = require('../connect.js')
 const {basePost, pagination} = require('../utils/utils.js')
 const {classSQL} = require('../db/classSql')
 const {getTimeForYMD} = require("../utils/date-util");
-const {callBackError, callBackSuc} = require("../utils/utils");
+const {callBackError, callBackSuc, basePostByDelete} = require("../utils/utils");
 const {resJson, pool} = require("../connect");
 
 /**
@@ -88,11 +88,10 @@ router.post('/addClass', (req, res) => {
 
                 let param = [body.gradeId, body.collegeId, body.specialtyId, class_id,body.class,body.teacherId, getTimeForYMD(), body.user]
                 conn.query(classSQL.addClass, param, (e, result1) => {
-                    if (e) _data = callBackError(code, e)
                     if (result1) {
                         _data = callBackSuc('添加成功')
                     } else {
-                        _data = callBackError(code, '添加失败，请联系管理员')
+                        _data = callBackError(-1, '添加失败，请联系管理员')
                     }
                     resJson(res, _data)
                 })
@@ -109,32 +108,12 @@ router.post('/addClass', (req, res) => {
  * 删除班级
  */
 router.post('/delClass', (req, res) => {
-    const idList = req.body.ids
     let params = {
         res: res,
         sql: classSQL.delClass,
-        param: [idList]
+        param: req.body.ids
     }
-    if (idList && Array.isArray(idList)) {
-        let flag = false
-        for (let i = 0;i < idList.length;i++) {
-            if (typeof idList[i] === "number") {
-                flag = true
-            } else {
-                flag = false
-                break
-            }
-        }
-        if (flag) {
-            basePost(params)
-        } else {
-            const _data = callBackError(code, '删除失败')
-            resJson(res, _data)
-        }
-    } else {
-        const _data = callBackError(code, '删除失败')
-        resJson(res, _data)
-    }
+    basePostByDelete(params)
 })
 /** 修改班级信息 */
 router.post('/updateClass', (req, res) => {

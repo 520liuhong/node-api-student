@@ -14,7 +14,7 @@ const crypto = require("crypto");
  * 统一的数据库连接
  * @param params
  */
-exports.basePost = (params) => {
+const basePost = (params) => {
     let _data;
     let {res, sql, sql2, param, param2} = params
     pool.getConnection((err, conn) => {
@@ -41,6 +41,35 @@ exports.basePost = (params) => {
         })
         pool.releaseConnection(conn) // 释放连接池，等待别的连接使用
     })
+}
+exports.basePost = basePost
+/**
+ * 删除的请求，过滤验证传过来的id或id列表
+ * @param params
+ */
+exports.basePostByDelete = (params) => {
+    const ids = params.ids
+    if (ids && Array.isArray(ids)) {
+        let flag = false
+        for (let i = 0;i < ids.length;i++) {
+            if (typeof ids[i] === "number") {
+                flag = true
+            } else {
+                flag = false
+                break
+            }
+        }
+        if (flag) {
+            params.ids = [ids]
+            basePost(params)
+        } else {
+            const _data = callBackError(code, '删除失败')
+            resJson(res, _data)
+        }
+    } else {
+        const _data = callBackError(code, '删除失败')
+        resJson(res, _data)
+    }
 }
 /**
  * 返回成功信息

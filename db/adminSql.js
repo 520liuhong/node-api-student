@@ -8,5 +8,6 @@ exports.adminSQL = {
     getAdminInfoTotal: 'select count(Id) as total from na_admin',
     getRoleList: 'select Id as id,name as name from na_role',
     getRoleTotal: 'select count(Id) as total from na_role',
-    addAdmin: 'insert into na_admin (name, password, role_id, status, remark, create_time, update_user) values (?,?,?,?,?,?,?)'
+    addAdmin: 'insert into na_admin (name, password, role_id, status, remark, create_time, update_user) values (?,?,?,?,?,?,?)',
+    delAdmin: 'delete from na_admin where Id in (?)'
 }

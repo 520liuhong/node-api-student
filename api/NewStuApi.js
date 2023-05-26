@@ -2,7 +2,7 @@ const {pool, router, resJson} = require('../connect.js')
 const {callBackSuc, callBackError, pagination} = require('../utils/utils.js')
 const {stuSQL} = require('../db/studentSql.js')
 const {getTimeForYMD} = require("../utils/date-util");
-const {basePost} = require("../utils/utils");
+const {basePost, basePostByDelete} = require("../utils/utils");
 const code = -1
 
 /**
@@ -99,7 +99,6 @@ router.post('/addStu', (req, res) => {
 
                 let param = [body.gradeId, body.collegeId, body.specialtyId, body.classId, stu_id, body.name, body.sex, body.birthday, body.age, body.address, body.phoneNo, getTimeForYMD()]
                 conn.query(stuSQL.addStu, param, (e, result1) => {
-                    if (e) _data = callBackError(code, e)
                     if (result1) {
                         _data = callBackSuc('添加成功')
                     } else {
@@ -120,33 +119,13 @@ router.post('/addStu', (req, res) => {
  * 删除学生信息
  */
 router.post('/delStu', (req, res) => {
-    const ids = req.body.ids
     let params = {
         res: res,
         sql: stuSQL.delStu,
-        param: [ids]
+        param: req.body.ids
     }
 
-    if (ids && Array.isArray(ids)) {
-        let flag = false
-        for (let i = 0;i < ids.length;i++) {
-            if (typeof ids[i] === "number") {
-                flag = true
-            } else {
-                flag = false
-                break
-            }
-        }
-        if (flag) {
-            basePost(params)
-        } else {
-            const _data = callBackError(code, '删除失败')
-            resJson(res, _data)
-        }
-    } else {
-        const _data = callBackError(code, '删除失败')
-        resJson(res, _data)
-    }
+    basePostByDelete(params)
 })
 /**
  * 修改学生信息
