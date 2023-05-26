@@ -73,8 +73,8 @@ router.post('/addAdmin', (req, res) => {
 router.post('/delAdmin', (req, res) => {
     let params = {
         res: res,
-        sql: adminSQL.delStu,
-        param: req.body.ids
+        sql: adminSQL.delAdmin,
+        param: [req.body.ids]
     }
 
     basePostByDelete(params)

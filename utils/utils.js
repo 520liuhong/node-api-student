@@ -48,7 +48,8 @@ exports.basePost = basePost
  * @param params
  */
 exports.basePostByDelete = (params) => {
-    const ids = params.ids
+    const ids = params.param
+    const { res } = params
     if (ids && Array.isArray(ids)) {
         let flag = false
         for (let i = 0;i < ids.length;i++) {
