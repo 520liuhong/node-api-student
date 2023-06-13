@@ -1,206 +1,154 @@
 const {pool, router, resJson} = require('../connect.js')
-const {callBackSuc, callBackError} = require('../utils/utils.js')
-const userSQL = require('../db/studentSql.js')
+const {callBackSuc, callBackError, pagination} = require('../utils/utils.js')
+const {stuSQL} = require('../db/studentSql.js')
+const {getTimeForYMD} = require("../utils/date-util");
+const {basePost, basePostByDelete} = require("../utils/utils");
 const code = -1
 
 /**
- * 查询所有用户
+ * 查询所有学生
  */
-router.get('/queryAll', (req, res) => {
-    let _data;
-    pool.getConnection((err, conn) => {
-        conn.query(userSQL.queryAll, (e, result) => {
-            if (e) _data = callBackError(code, e)
-            if (result && result.length) {
-                _data = callBackSuc('查询成功', result)
-            } else {
-                _data = callBackError(code, '当前没有用户')
-            }
-            resJson(res, _data)
-        })
-        pool.releaseConnection(conn) // 释放连接池，等待别的连接使用
-    })
+router.post('/getStuInfo', (req, res) => {
+    let limit = pagination(req.body.pageNo, req.body.pageSize)
+    let params = {
+        res: res,
+        sql: stuSQL.getStuInfo + limit,
+        sql2: stuSQL.getStuTotal,
+    }
+    basePost(params)
 })
 /**
- * 用户登录功能
+ * 通过名称或者学号模糊查询学生
  */
-router.post('/login', (req, res) => {
-    let user = {
-        username: req.body.username,
-        password: req.body.password
+router.post('/getStuByNameOrId', (req, res) => {
+    let param = "%" + req.body.q + "%"
+    let limit = pagination(req.body.pageNo, req.body.pageSize)
+    let params = {
+        res: res,
+        sql: stuSQL.getStuByNameOrId + limit,
+        param: [param],
+        sql2: stuSQL.getStuByNameOrIdTotal,
+        param2: [param]
     }
-    let _res = res;
-    // 判断参数是否为空
-    if (!user.username) {
-        return resJson(_res, callBackError(code, '用户名不能为空'))
+    basePost(params)
+})
+/**
+ * 查询所有院系
+ */
+router.get('/getAllCollege', (req, res) => {
+    let params = {
+        res: res,
+        sql: stuSQL.getAllCollege
     }
-    if (!user.password) {
-        return resJson(_res, callBackError(code, '密码不能为空'))
+    basePost(params)
+})
+/**
+ * 查询所有班级
+ */
+router.get('/getAllClass', (req, res) => {
+    let params = {
+        res: res,
+        sql: stuSQL.getAllClass
     }
+    basePost(params)
+})
+/**
+ * 根据院系查专业
+ */
+router.post('/getSpecialtyByCollege', (req, res) => {
+    let params = {
+        res: res,
+        sql: stuSQL.getSpecialtyByCollege,
+        param: [req.body.id]
+    }
+    if (req.body.id) {
+        basePost(params)
+    } else {
+        const _data = callBackError(code, 'Fail')
+        resJson(res, _data)
+    }
+})
+/**
+ * 根据专业查班级
+ */
+router.post('/getClassBySpecialty', (req, res) => {
+    let params = {
+        res: res,
+        sql: stuSQL.getClassBySpecialty,
+        param: [req.body.id]
+    }
+    if (req.body.id) {
+        basePost(params)
+    } else {
+        const _data = callBackError(code, 'Fail')
+        resJson(res, _data)
+    }
+})
+/**
+ * 注册学生信息
+ */
+router.post('/addStu', (req, res) => {
     let _data;
-    // 从连接池获取连接
-    pool.getConnection((err, conn) => {
-        conn.query(userSQL.queryByNamePassword, [user.username, user.password], (e, result) => {
-            if (e) _data = callBackError(code, e)
-            //通过用户名和密码索引查询数据，有数据说明用户存在且密码正确，只能返回登录成功，否则返回用户名不存在或登录密码错误
-            if (result && result.length) {
-                _data = callBackSuc('登录成功', {userInfo: {username: user.username}})
-            } else {
-                _data = callBackError(code, '用户名不存在或登录密码错误')
-            }
-            resJson(_res, _data)
+    let body = req.body
+    if (body.classId && body.gradeId && body.collegeId && body.specialtyId && body.name && body.sex && body.birthday && body.age && body.address) {
+        pool.getConnection((err, conn) => {
+            let stu_id = 0
+            conn.query('select max(stu_id) from na_student where class_id = ' + body.classId + ' order by stu_id desc', (e, result) => {
+                stu_id = Object.values(result[0])[0]
+                stu_id = stu_id ? parseFloat(stu_id) + 1 : body.classId + '01'
+
+                let param = [body.gradeId, body.collegeId, body.specialtyId, body.classId, stu_id, body.name, body.sex, body.birthday, body.age, body.address, body.phoneNo, getTimeForYMD()]
+                conn.query(stuSQL.addStu, param, (e, result1) => {
+                    if (result1) {
+                        _data = callBackSuc('添加成功')
+                    } else {
+                        _data = callBackError(code, '添加失败，请联系管理员')
+                    }
+                    resJson(res, _data)
+                })
+            })
+
+            pool.releaseConnection(conn) // 释放连接池，等待别的连接使用
         })
-        pool.releaseConnection(conn) // 释放连接池，等待别的连接使用
-    })
+    } else {
+        _data = callBackError(code, '信息不全，添加失败')
+        resJson(res, _data)
+    }
+})
+/**
+ * 删除学生信息
+ */
+router.post('/delStu', (req, res) => {
+    let params = {
+        res: res,
+        sql: stuSQL.delStu,
+        param: req.body.ids
+    }
+
+    basePostByDelete(params)
+})
+/**
+ * 修改学生信息
+ */
+router.post('/updateStu', (req, res) => {
+    let body = req.body
+    let updateTime = getTimeForYMD()
+    let params = {
+        res: res,
+        sql: stuSQL.updateStu,
+        param: [body.gradeId, body.collegeId, body.specialtyId, body.classId, body.stuId, body.name, body.sex, body.birthday, body.age, body.address, body.phoneNo, updateTime, body.user, body.id]
+    }
+    basePost(params)
+})
+/**
+ * 获取年级列表
+ */
+router.post('/getGrade', (req, res) => {
+    let params = {
+        res: res,
+        sql: stuSQL.getGrade
+    }
+    basePost(params)
 })
 
-/**
- * 注册用户功能
- */
-router.post('/register', (req, res) => {
-    // 获取前台页面传过来的参数
-    let user = {
-        username: req.body.username,
-        realname: req.body.realname,
-        password: req.body.password
-    }
-    let _res = res;
-    // 判断参数是否为空
-    if (!user.username) {
-        return resJson(_res, callBackError(code, '用户名不能为空'))
-    }
-    if (!user.realname) {
-        return resJson(_res, callBackError(code, '真实姓名不能为空'))
-    }
-    if (!user.password) {
-        return resJson(_res, callBackError(code, '密码不能为空'))
-    }
-    let _data;
-    // 整合参数
-    // 从连接池获取连接
-    pool.getConnection((err, conn) => {
-        // 查询数据库该用户是否已存在
-        conn.query(userSQL.queryByName, user.username, (e, r) => {
-            if (e) _data = callBackError(code, e.sqlMessage)
-            if (r) {
-                //判断用户列表是否为空
-                if (r.length) {
-                    //如不为空，则说明存在此用户
-                    _data = callBackError(code, '用户已存在')
-                } else {
-                    //插入用户信息
-                    user.create_time = new Date().getTime()
-                    conn.query(userSQL.insert, user, (err, result) => {
-                        if (result) {
-                            _data = callBackSuc('注册成功')
-                        } else {
-                            _data = callBackError(code, '注册失败')
-                        }
-                    })
-                }
-            }
-            setTimeout(() => {
-                //把操作结果返回给前台页面
-                resJson(_res, _data)
-            }, 200);
-        })
-        pool.releaseConnection(conn) // 释放连接池，等待别的连接使用
-    })
-})
-/**
- * 修改密码
- */
-router.post('/updatePassword', (req, res) => {
-    let user = {
-        username: req.body.username,
-        oldPassword: req.body.oldPassword,
-        newPassword: req.body.newPassword,
-        againPassword: req.body.againPassword
-    }
-    let _res = res;
-    // 判断参数是否为空
-    if (!user.username) {
-        return resJson(_res, callBackError(code, '用户名不能为空'))
-    }
-    if (!user.oldPassword || !user.newPassword) {
-        return resJson(_res, callBackError(code, '密码不能为空'))
-    }
-    if (!user.againPassword || user.againPassword !== user.newPassword) {
-        return resJson(_res, callBackError(code, '请确认新密码或两次新密码不一致'))
-    }
-    let _data;
-    // 整合参数
-    // 从连接池获取连接
-    pool.getConnection((err, conn) => {
-        // 查询数据库该用户是否已存在
-        conn.query(userSQL.queryByNamePassword, [user.username, user.oldPassword], (e, r) => {
-            if (e) _data = callBackError(code, e)
-            if (r) {
-                //判断用户列表是否为空
-                if (r.length) {
-                    //如不为空，则说明存在此用户且密码正确
-                    conn.query(userSQL.updateUser, [{
-                        password: user.newPassword
-                    }, user.username], (err, result) => {
-                        if (result) {
-                            _data = callBackSuc('修改密码成功')
-                        } else {
-                            _data = callBackError(code, '密码修改失败')
-                        }
-                    })
-                } else {
-                    _data = callBackError(code, '用户不存在或旧密码输入错误')
-                }
-            }
-            setTimeout(() => {
-                //把操作结果返回给前台页面
-                resJson(_res, _data)
-            }, 200);
-        })
-        pool.releaseConnection(conn) // 释放连接池，等待别的连接使用
-    })
-})
-/**
- * 删除用户
- */
-router.post('/deleteUser', (req, res) => {
-    // 获取前台页面传过来的参数
-    let user = {
-        username: req.body.username
-    }
-    let _res = res;
-    // 判断参数是否为空
-    if (!user.username) {
-        return resJson(_res, callBackError(code, '用户名不能为空'))
-    }
-    let _data;
-    // 整合参数
-    // 从连接池获取连接
-    pool.getConnection((err, conn) => {
-        // 查询数据库该用户是否已存在
-        conn.query(userSQL.queryByName, user.username, (e, r) => {
-            if (e) _data = callBackError(code, e)
-            if (r) {
-                //判断用户列表是否为空
-                if (r.length) {
-                    //如不为空，则说明存在此用户
-                    conn.query(userSQL.deleteUser, user.username, (err, result) => {
-                        if (err) _data = callBackError(code, e)
-                        if (result) {
-                            _data = callBackSuc('删除用户操作成功')
-                        }
-                    })
-                } else {
-                    _data = callBackError(code, '用户不存在，操作失败')
-                }
-            }
-            setTimeout(() => {
-                //把操作结果返回给前台页面
-                resJson(_res, _data)
-            }, 200);
-        })
-        pool.releaseConnection(conn) // 释放连接池，等待别的连接使用
-    })
-})
 module.exports = router;
-

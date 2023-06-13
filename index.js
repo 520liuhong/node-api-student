@@ -1,5 +1,4 @@
 const {app, pool} = require('./connect')
-// const student = require('./api/stuApi')
 const student = require('./api/index')
 app.all('*', (req, res, next) => {
     // 这里处理全局拦截，一定要写在最上面
